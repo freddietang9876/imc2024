@@ -40,8 +40,11 @@ class Trader:
         print("TraderData: " + state.traderData)
         print("Observations: " + str(state.observations))
 
+        # Calculate amethysts data
+        amethystResults = self.tradeAmethysts(state.order_depths["AMETHYSTS"], state.position["AMETHYSTS"])
+
         result = {
-            "AMETHYSTS": self.tradeAmethysts(state.order_depths["AMETHYSTS"], state.position["AMETHYSTS"])
+            "AMETHYSTS": amethystResults
         }
 
         traderData = ""  # String value holding Trader state data required. It will be delivered as TradingState.traderData on next execution.
