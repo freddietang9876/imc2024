@@ -14,7 +14,6 @@ class Trader:
             if price<mn:
                 mn=price
         netB=0
-        # pos=state.position.get("AMETHYSTS",0)
         if (mn<10000-max(0,pos//4) and pos<20):
             netB=min(-amethysts.sell_orders[mn],min(20-pos,4))
             result.append(Order("AMETHYSTS",mn,netB))
