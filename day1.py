@@ -4,7 +4,7 @@ import string
 
 
 class Trader:
-    def tradeAmethysts(self, amethysts: OrderDepth, pos: Position):
+    def amethysts(self, amethysts: OrderDepth, pos: Position):
         result = []
         mn=1000000
         mx=0
@@ -14,7 +14,8 @@ class Trader:
             if price<mn:
                 mn=price
         netB=0
-        if (mn<10000+min(0,pos//4) and pos<20):
+        # pos=state.position.get("AMETHYSTS",0)
+        if (mn<10000-max(0,pos//4) and pos<20):
             netB=min(-amethysts.sell_orders[mn],min(20-pos,4))
             result.append(Order("AMETHYSTS",mn,netB))
 
@@ -26,28 +27,25 @@ class Trader:
             if price > mx:
                 mx = price
         netS=0
-        if (mx > 10000 + max(0, pos // 4) and pos > -20):
-            netS = min(amethysts.buy_orders[mx], -min(pos+20,4))
-            result.append(Order("AMETHYSTS", mx, -netS))
+        if (mx > 10000 - min(0, pos // 4) and pos > -20):
+            netS = -min(amethysts.buy_orders[mx], min(pos+20,4))
+            result.append(Order("AMETHYSTS", mx, netS))
 
-        if (pos - netS > -10):
+        if (pos + netS > -10):
             result.append(Order("AMETHYSTS", max(mx,10000)+1, -((10+pos+netS)//3)))
 
         return result
 
     def run(self, state: TradingState):
         # Only method required. It takes all buy and sell orders for all symbols as an input, and outputs a list of orders to be sent
-        print("TraderData: " + state.traderData)
-        print("Observations: " + str(state.observations))
-
-        # Calculate amethysts data
-        amethystResults = self.tradeAmethysts(state.order_depths["AMETHYSTS"], state.position["AMETHYSTS"])
-
-        result = {
-            "AMETHYSTS": amethystResults
-        }
-
+        amethystResults = self.amethysts(
+            state.order_depths.get("AMETHYSTS"),
+            state.position.get("AMETHYSTS")
+        )
+        result = {"AMETHYSTS":amethystResults}
         traderData = ""  # String value holding Trader state data required. It will be delivered as TradingState.traderData on next execution.
 
+        print(result)
+        print(state.own_trades)
         conversions = 0
         return result, conversions, traderData
