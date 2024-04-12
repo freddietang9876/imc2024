@@ -6,6 +6,7 @@ from collections import Counter, defaultdict
 import argparse
 import pandas as pd
 import numpy as np
+import json
 
 POSITION_MAX = 10
 POSITION_MIN = -10
@@ -160,21 +161,52 @@ def run_simulation(df: pd.DataFrame):
 
         pnl += marginal_profit
 
-        out['timestamp'].append(str(timestamp))
-        out['marginal_profit'].append(str(marginal_profit))
-        out['pnl'].append(str(pnl))
+        out['timestamp'].append(timestamp)
+        out['marginal_profit'].append(marginal_profit)
+        out['pnl'].append(pnl)
         out['trades'].append(trade_strs(own_trades))
-        out['position'].append(str(position))
+        out['position'].append(json.dumps(position))
 
     return pd.DataFrame(dict(out))
 
 if __name__ == "__main__":
     parser = argparse.ArgumentParser(description="Tests the trader for day 1 of Prosperity 2")
-    parser.add_argument("path", help="Path to the file")
+    parser.add_argument("trades", help="Path to the trades file")
+    parser.add_argument("prices", help="Path to the prices file")
 
     args = parser.parse_args()
-    file_path = args.path
+    trades_path = args.trades
+    prices_path = args.prices
 
     # Read
-    out = run_simulation(pd.read_csv(file_path, sep=";"))
+    out = run_simulation(pd.read_csv(trades_path, sep=";"))
+    prices = pd.read_csv(prices_path, sep=";")
+
+    starfruit_midprice = 0
+    amethyst_midprice = 0
+    actual_pnls = []
+    amethyst_midprices = []
+    starfruit_midprices = []
+
+    for _, out_row in out.iterrows():
+        timestamp = out_row['timestamp']
+        pnl = int(out_row['pnl'])
+        prices_rows = prices.loc[prices['timestamp'] == timestamp]
+
+        for _, prices_row in prices_rows.iterrows():
+            if prices_row['product'] == "AMETHYSTS":
+                amethyst_midprice = int(prices_row["mid_price"])
+            else:
+                starfruit_midprice = int(prices_row["mid_price"])
+
+        position = json.loads(out_row['position'])
+        actual_pnl = pnl + (starfruit_midprice * position['STARFRUIT']) + (amethyst_midprice * position['AMETHYSTS'])
+        amethyst_midprices.append(amethyst_midprice)
+        starfruit_midprices.append(starfruit_midprice)
+        actual_pnls.append(actual_pnl)
+
+    out['actual_pnl'] = actual_pnls
+    out['starfruit_price'] = starfruit_midprices
+    out['amethyst_price'] = amethyst_midprices
+
     out.to_csv('out.csv', index=False)
