@@ -72,7 +72,7 @@ class Trader:
                 print(price,netS,-min(amethysts.buy_orders[mx], pos+netS+20))
                 result.append(Order("AMETHYSTS", price, -min(amethysts.buy_orders[price], pos+netS+20)))
                 netS += -min(amethysts.buy_orders[price], pos+netS+20)
-                print(netS)
+                # print(netS)
         # if (mx > 10000 - min(0, pos // 4) and pos > -20):
         #     netS = -min(amethysts.buy_orders[mx], pos+20)
         #     result.append(Order("AMETHYSTS", mx, netS))
@@ -94,9 +94,9 @@ class Trader:
         mx=self.getMax(starfruit.sell_orders)
         current_mid = abs(mx+mn)/2
         prices.append(current_mid)
-        print(prices)
+        # print(prices)
         next_price= sum([prices[i]*coeffs[i] for i in range(len(coeffs))])+intercept
-        print(next_price)
+        # print(next_price)
         #BUY
         mn = self.getMin(starfruit.sell_orders)
         netB = 0
