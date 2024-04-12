@@ -31,7 +31,14 @@ class Trader:
         for price in sell_prices:
             if (pos+netB>=20):
                 break
+
+
             if (price<10000):
+                if (price > 9998):
+                    if (pos + netB < 10):
+                        result.append(Order("AMETHYSTS", price, min(10 - pos - netB, -amethysts.sell_orders[price])))
+                        netB += min(10 - pos - netB, -amethysts.sell_orders[price])
+                    break
                 result.append(Order("AMETHYSTS", price, min(20-pos-netB,-amethysts.sell_orders[price])))
                 netB+=min(20-pos-netB,-amethysts.sell_orders[price])
 
@@ -40,7 +47,7 @@ class Trader:
       #      result.append(Order("AMETHYSTS",mn,netB))
 
         if (pos+netB<20):
-            result.append(Order("AMETHYSTS", 9999, max(1,(20-pos-netB)-1)))
+            result.append(Order("AMETHYSTS", 9997, max(1,(20-pos-netB)-1)))
 
         #SELL
         mx = self.getMax(amethysts.buy_orders)
@@ -54,7 +61,14 @@ class Trader:
         for price in buy_prices:
             if (pos + netS <= -20):
                 break
+
             if (price > 10000):
+                if (price < 10002):
+                    if (netS + pos > -10):
+                        reduce = -min(amethysts.buy_orders[price], pos + netS + 10)
+                        result.append(Order("AMETHYSTS", price, reduce))
+                        netS += reduce
+                    break
                 print(price,netS,-min(amethysts.buy_orders[mx], pos+netS+20))
                 result.append(Order("AMETHYSTS", price, -min(amethysts.buy_orders[price], pos+netS+20)))
                 netS += -min(amethysts.buy_orders[price], pos+netS+20)
@@ -64,7 +78,7 @@ class Trader:
         #     result.append(Order("AMETHYSTS", mx, netS))
 
         if (pos + netS > -20):
-            result.append(Order("AMETHYSTS", 10001, -(max(1,(20+pos+netS)-1))))
+            result.append(Order("AMETHYSTS", 10003, -(max(1,(20+pos+netS)-1))))
 
         return result
     def starfruit(self, starfruit: OrderDepth, pos: Position, tradeData):
@@ -88,20 +102,20 @@ class Trader:
         netB = 0
 
         if (mn < next_price - max(0, pos // 4) and pos < 20):
-            netB = min(-starfruit.sell_orders[mn], min(20 - pos, 4))
+            netB = min(-starfruit.sell_orders[mn], (20 - pos)//2)
             orders.append(Order("STARFRUIT", mn, netB))
-        if (pos+netB<10):
-            orders.append(Order("STARFRUIT", min(mn,int(next_price))-1, (10-pos-netB)//3))
+        if (pos+netB<20):
+            orders.append(Order("STARFRUIT", min(mn,round(next_price)-1)-1, (20-pos-netB)))
 
         #SELL
         mx = self.getMax(starfruit.buy_orders)
         netS = 0
         if (mx > next_price - min(0, pos // 4) and pos > -20):
-            netS = -min(starfruit.buy_orders[mx], min(pos + 20, 4))
+            netS = -min(starfruit.buy_orders[mx], (pos + 20)//2)
             orders.append(Order("STARFRUIT", mx, netS))
 
-        if (pos + netS > -10):
-            orders.append(Order("STARFRUIT", max(mx, int(next_price)+1) + 1, -((10 + pos + netS) // 3)))
+        if (pos + netS > -20):
+            orders.append(Order("STARFRUIT", max(mx, round(next_price)+1) + 1, -((20 + pos + netS))))
         newTradeData=prices[1:]
         return orders,newTradeData
     def run(self, state: TradingState):
