@@ -21,24 +21,50 @@ class Trader:
         mx=0
 
         #BUY
+
         mn= self.getMin(amethysts.sell_orders)
         netB=0
-        if (mn<10000-max(0,pos//4) and pos<20):
-            netB=min(-amethysts.sell_orders[mn],min(20-pos,4))
-            result.append(Order("AMETHYSTS",mn,netB))
+        sell_prices=[]
+        for price,quant in amethysts.sell_orders.items():
+            sell_prices.append(price)
+        sell_prices.sort()
+        for price in sell_prices:
+            if (pos+netB>=20):
+                break
+            if (price<10000):
+                result.append(Order("AMETHYSTS", price, min(20-pos-netB,-amethysts.sell_orders[price])))
+                netB+=min(20-pos-netB,-amethysts.sell_orders[price])
 
-        if (pos+netB<10):
-            result.append(Order("AMETHYSTS", min(mn,10000)-1, (10-pos-netB)//3))
+    #    if (mn<10000-max(0,pos//4) and pos<20):
+     #       netB=min(-amethysts.sell_orders[mn],20-pos)
+      #      result.append(Order("AMETHYSTS",mn,netB))
+
+        if (pos+netB<20):
+            result.append(Order("AMETHYSTS", 9999, max(1,(20-pos-netB)-1)))
 
         #SELL
         mx = self.getMax(amethysts.buy_orders)
         netS=0
-        if (mx > 10000 - min(0, pos // 4) and pos > -20):
-            netS = -min(amethysts.buy_orders[mx], min(pos+20,4))
-            result.append(Order("AMETHYSTS", mx, netS))
 
-        if (pos + netS > -10):
-            result.append(Order("AMETHYSTS", max(mx,10000)+1, -((10+pos+netS)//3)))
+        buy_prices = []
+        for price, quant in amethysts.buy_orders.items():
+            buy_prices.append(price)
+        buy_prices.sort()
+        buy_prices.reverse()
+        for price in buy_prices:
+            if (pos + netS <= -20):
+                break
+            if (price > 10000):
+                print(price,netS,-min(amethysts.buy_orders[mx], pos+netS+20))
+                result.append(Order("AMETHYSTS", price, -min(amethysts.buy_orders[price], pos+netS+20)))
+                netS += -min(amethysts.buy_orders[price], pos+netS+20)
+                print(netS)
+        # if (mx > 10000 - min(0, pos // 4) and pos > -20):
+        #     netS = -min(amethysts.buy_orders[mx], pos+20)
+        #     result.append(Order("AMETHYSTS", mx, netS))
+
+        if (pos + netS > -20):
+            result.append(Order("AMETHYSTS", 10001, -(max(1,(20+pos+netS)-1))))
 
         return result
     def starfruit(self, starfruit: OrderDepth, pos: Position, tradeData):

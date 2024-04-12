@@ -18,8 +18,8 @@ listings = {
 
 order_depths = {
 	"AMETHYSTS": OrderDepth(
-		buy_orders={10001: 7, 9999: 5},
-		sell_orders={9998: -4, 10002: -8}
+		buy_orders={10001: 18,10002:5, 9999: 5},
+		sell_orders={9998: -7, 10002: -8}
 	),
 	"STARFRUIT": OrderDepth(
 		buy_orders={5036: 30},
