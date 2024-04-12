@@ -1,5 +1,6 @@
 from datamodel import Listing, OrderDepth, Trade, TradingState
 from day1 import Trader
+import jsonpickle
 timestamp = 1000
 
 listings = {
@@ -8,8 +9,8 @@ listings = {
 		product="PRODUCT1",
 		denomination= "SEASHELLS"
 	),
-	"PRODUCT2": Listing(
-		symbol="PRODUCT2",
+	"STARFRUIT": Listing(
+		symbol="STAFRUIT",
 		product="PRODUCT2",
 		denomination= "SEASHELLS"
 	),
@@ -17,12 +18,12 @@ listings = {
 
 order_depths = {
 	"AMETHYSTS": OrderDepth(
-		buy_orders={10001: 7, 9999: 5},
-		sell_orders={9998: -4, 100002: -8}
+		buy_orders={10001: 18,10002:5, 9999: 5},
+		sell_orders={9998: -7, 10002: -8}
 	),
-	"PRODUCT2": OrderDepth(
-		buy_orders={142: 3, 141: 5},
-		sell_orders={144: -5, 145: -8}
+	"STARFRUIT": OrderDepth(
+		buy_orders={5036: 30},
+		sell_orders={5043: -30, 5044: -8}
 	),
 }
 
@@ -47,11 +48,11 @@ market_trades = {
 
 position = {
 	"AMETHYSTS": 0,
-	"PRODUCT2": -5
+	"STARFRUIT": 0
 }
 
 observations = {}
-traderData = ""
+traderData = jsonpickle.encode({"STARFRUIT":[5040,5050,5060]})
 
 state = TradingState(
 	traderData,
@@ -64,5 +65,6 @@ state = TradingState(
 	observations
 )
 trader=Trader()
-result,_,__=trader.run(state)
+result,_,data=trader.run(state)
+print("data:",data)
 print(result)
