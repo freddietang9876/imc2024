@@ -41,6 +41,9 @@ def get_order_depths(records):
 
     return order_depths
 
+def trade_strs(X):
+    return "\n".join([str(x) for Y in X.values() for x in Y])
+
 # Runs the simulation using the data given in the dataframe.
 def run_simulation(df: pd.DataFrame):
     listings = {
@@ -56,6 +59,7 @@ def run_simulation(df: pd.DataFrame):
     pnl = 0
     market_trades = dict()
     trader = Trader()
+    out = defaultdict(list)
 
     for timestamp, rows in df.groupby(by="timestamp"):
         # heads = bid order, not heads = ask order
@@ -119,7 +123,6 @@ def run_simulation(df: pd.DataFrame):
 
                     position[symbol] = current_position
 
-
                 else: # this is a BUY
                     actual_quantity = quantity
 
@@ -154,11 +157,16 @@ def run_simulation(df: pd.DataFrame):
                         sells[i] = (p, -(q-1))
 
                     position[symbol] = current_position
+
         pnl += marginal_profit
 
-        print(f"timestamp={timestamp}, dpnl={marginal_profit}, pnl={pnl}, trades={own_trades}, positions={position}")
+        out['timestamp'].append(str(timestamp))
+        out['marginal_profit'].append(str(marginal_profit))
+        out['pnl'].append(str(pnl))
+        out['trades'].append(trade_strs(own_trades))
+        out['position'].append(str(position))
 
-    pass
+    return pd.DataFrame(dict(out))
 
 if __name__ == "__main__":
     parser = argparse.ArgumentParser(description="Tests the trader for day 1 of Prosperity 2")
@@ -168,4 +176,5 @@ if __name__ == "__main__":
     file_path = args.path
 
     # Read
-    run_simulation(pd.read_csv(file_path, sep=";"))
+    out = run_simulation(pd.read_csv(file_path, sep=";"))
+    out.to_csv('out.csv', index=False)
